@@ -4,3 +4,5 @@
 - utils.h: Encabezados, deniciones de estructuras y funciones.
 - predict.c: Programa que carga un diccionario y permite predecir palabras por linea de comando.
 - dicc.txt: Diccionario base del programa predict.c.
+- Uso valgrind: valgrind --leak-check=full --show-leak-kinds=all -v
+- Compilar fichero: gcc -o fichero.c ejecutable

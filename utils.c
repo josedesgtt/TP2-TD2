@@ -33,10 +33,10 @@ agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 1 
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
     struct node* v_nodo = (struct node *) malloc(sizeof(struct node)); // Alojamos memoria para un nuevo nodo
     v_nodo = kt->first; // Asignamos a v_nodo la dirección del primer nodo del primer nivel
-    char* n_word = strDupt(word); // Copiamos palabra para el último nodo de la palabra
+    char* n_word = strDup(word); // Copiamos palabra para el último nodo de la palabra
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
-        if (a == NULL) {    // Si el nodo no existe...
+        if (a == NULL) {   // Si el nodo no existe...
             addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
         }
         if (i==strLen(word)-1){ // Si estamos en trabajando con el último nodo...
@@ -46,9 +46,9 @@ void keysPredictAddWord(struct keysPredict* kt, char* word) {
             a->end = 1;
         }
         v_nodo = v_nodo->down;
-    }
-}
 
+     }
+}
 
 /*
 Busca el nodo correspondiente a la ultima letra de la palabra a borrar y borra la palabra
@@ -202,7 +202,7 @@ struct node* addSortedNewNodeInLevel(struct node** list, char character) {
         } else if (var_nodo->next->next == NULL && var_nodo->next->character < character) {
             var_nodo->next->next = newNode;
             return *list;
-        } else if (var_node->character > character) {
+        } else if (var_nodo->character > character) {
             var_nodo = newNode;
             return newNode;
         }
@@ -214,7 +214,7 @@ struct node* addSortedNewNodeInLevel(struct node** list, char character) {
     } else if (var_nodo->character < character){
         var_nodo->next = newNode;
         return var_nodo;
-    } else if (var_node->character > character){
+    } else if (var_nodo->character > character){
         newNode->next = var_nodo;
         return newNode;
     }
@@ -229,5 +229,4 @@ void deleteArrayOfWords(char** words, int wordsCount) {
     for (int i = 0; i<wordsCount; i++){
         free(*(words + i)); // Liberamos la memoria del puntero a la i-ésima palabra
     }
-    free(words); // Finalmente liberamos la memoria asignada al arreglo de strings
 }

@@ -135,10 +135,24 @@ char** keysPredictListAll(struct keysPredict* kt, int* wordsCount) {
     return 0;
 }
 
+void recursiveDelete(struct node* n){
+	if (n->next != NULL){
+		recursiveDelete(n->next);
+	}
+	if (n->down != NULL){
+		recursiveDelete(n->down);
+	}
+	if (n->word != NULL){
+		deleteArrayOfWords(&n->word, 1);
+	}
+	free(n);
+}
+
 void keysPredictDelete(struct keysPredict* kt) {
-
-    // COMPLETAR
-
+	struct node *var_node = malloc(sizeof(struct node));
+	var_node = kt->first;
+	recursiveDelete(var_node);
+	free(kt);
 }
 
 void keysPredictPrint(struct keysPredict* kt) {

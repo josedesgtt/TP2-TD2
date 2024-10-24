@@ -13,8 +13,6 @@ char* strDup(char* src) {
     return copia;
 }
 
-// Keys Predict
-
 struct keysPredict* keysPredictNew() {
     struct keysPredict* kt = (struct keysPredict*)malloc(sizeof(struct keysPredict));
     kt->first = 0;
@@ -31,17 +29,17 @@ agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 
 */
 
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
-    struct node* v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo 
+    struct node* v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo
     v_nodo = kt->first; // Asignamos a v_nodo la direccion del primer nodo del primer nivel
-    char n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
+    char* n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
     struct node* a = (struct node *)malloc(sizeof(struct node));
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         if (v_nodo == 0) {
             v_nodo = addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
             kt->totalKeys++;
         } else {
-            a = findNodeInLevel(&v_nodo, word[i]);  
-            if (a == NULL) {   // Si el nodo no existe...
+            a = findNodeInLevel(&v_nodo, word[i]);
+            if (a == 0) {   // Si el nodo no existe...
                 addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
                 kt->totalKeys++;
             }
@@ -79,7 +77,7 @@ void keysPredictRemoveWord(struct keysPredict* kt, char* word) {
 
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
-        if (a == NULL) {    // Si el nodo no existe...
+        if (a == 0) {    // Si el nodo no existe...
             i = strLen(word);
         }
         if (i==strLen(word)-1){ // Si estamos en trabajando con el último nodo...
@@ -101,7 +99,7 @@ struct node* keysPredictFind(struct keysPredict* kt, char* word) {
     v_nodo = kt->first;
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
-        if (a == NULL) {    // Si el nodo no existe...
+        if (a == 0) {    // Si el nodo no existe...
             return 0;
         }
         if (i==strLen(word)){
@@ -143,13 +141,13 @@ char** keysPredictListAll(struct keysPredict* kt, int* wordsCount) {
 }
 
 void recursiveDelete(struct node* n){
-	if (n->next != NULL){
+	if (n->next != 0){
 		recursiveDelete(n->next);
 	}
-	if (n->down != NULL){
+	if (n->down != 0){
 		recursiveDelete(n->down);
 	}
-	if (n->word != NULL){
+	if (n->word != 0){
 		deleteArrayOfWords(&n->word, 1);
 	}
 	free(n);
@@ -185,20 +183,15 @@ void keysPredictPrintAux(struct node* n, int level) {
 
 // Auxiliar functions
 
-/*
-struct node* findNodeInLevel(struct node** list, char character)
-Dada una lista de nodos, retorna un puntero al nodo que tiene el caracter pasado por parámetro.
-*/
-
 struct node* findNodeInLevel(struct node** list, char character) {
-    struct node* var_nodo = *list;
-    while (var_nodo != NULL && var_nodo->next != NULL) {
-        if (var_nodo->character == character) {
-            return var_nodo;
+    struct node* varNodo = *list; // Desreferenciamos list para obtener un puntero al nodo
+    while (varNodo != 0) {
+        if (varNodo->character == character) {
+            return varNodo;
         }
-        var_nodo =  var_nodo->next;
+        varNodo =  varNodo->next;
     }
-    return NULL;
+    return 0;
 }
 
 /*
@@ -211,32 +204,35 @@ struct node* addSortedNewNodeInLevel(struct node** list, char character) {
     struct node* var_nodo = *list;
     struct node* newNode = (struct node*)malloc(sizeof(struct node));
     newNode->character = character;
-    newNode->down = NULL;
-    newNode->end = NULL;
-    newNode->next = NULL;
-    newNode->word = NULL;
-    while (var_nodo != NULL && var_nodo->next != NULL){
+    newNode->down = 0;
+    newNode->end = 0;
+    newNode->next = 0;
+    newNode->word = 0;
+    while (var_nodo != 0 && var_nodo->next != 0){ // Más de dos nodos
+        // Agregar en medio
         if (var_nodo->character <= character && var_nodo->next->character >= character){
             newNode->next = var_nodo->next;
             var_nodo->next = newNode;
             return *list;
-        } else if (var_nodo->next->next == NULL && var_nodo->next->character < character) {
+        } else if (var_nodo->next->next == 0 && var_nodo->next->character < character) {
             var_nodo->next->next = newNode;
             return *list;
         } else if (var_nodo->character > character) {
-            var_nodo = newNode;
+            newNode->next = var_nodo;
+            *list = newNode;
             return newNode;
         }
         var_nodo = var_nodo->next;
     }
-    if (var_nodo == NULL){
-        var_nodo = newNode;
+    if (var_nodo == 0){
+        *list = newNode;
         return var_nodo;
     } else if (var_nodo->character < character){
         var_nodo->next = newNode;
         return var_nodo;
     } else if (var_nodo->character > character){
         newNode->next = var_nodo;
+        *list = newNode;
         return newNode;
     }
 }

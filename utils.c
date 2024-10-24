@@ -25,9 +25,9 @@ struct keysPredict* keysPredictNew() {
 
 /*
 Agrega una nueva palabra a la estructura keysPredict. Para esto debe ir recorriendo cada lista
-y en cada nivel agregar cada letra de la palabra en caso de ser necesario. Al final, en el último
-nodo, correspondiente a la última letra de la palabra, deberá hacer una copia de la palabra y
-agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 1 en end.
+y en cada nivel agregar cada letra de la palabra en caso de ser necesario. Al final, en el Ãºltimo
+nodo, correspondiente a la Ãºltima letra de la palabra, deberÃ¡ hacer una copia de la palabra y
+agregarla en el nodo. AdemÃ¡s deberÃ¡ marcar este nodo como final, indicando un 1 en end.
 */
 
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
@@ -78,11 +78,11 @@ void keysPredictRemoveWord(struct keysPredict* kt, char* word) {
     */
 
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
-        struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
+        struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-Ã©simo nivel cuya letra sea la i-Ã©sima de la palabra
         if (a == NULL) {    // Si el nodo no existe...
             i = strLen(word);
         }
-        if (i==strLen(word)-1){ // Si estamos en trabajando con el último nodo...
+        if (i==strLen(word)-1){ // Si estamos en trabajando con el Ãºltimo nodo...
             a->end = 0;
             free(a->word);
         }
@@ -100,7 +100,7 @@ struct node* keysPredictFind(struct keysPredict* kt, char* word) {
     struct node* v_nodo = (struct node*)malloc(sizeof(struct node));
     v_nodo = kt->first;
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
-        struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
+        struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-Ã©simo nivel cuya letra sea la i-Ã©sima de la palabra
         if (a == NULL) {    // Si el nodo no existe...
             return 0;
         }
@@ -187,7 +187,7 @@ void keysPredictPrintAux(struct node* n, int level) {
 
 /*
 struct node* findNodeInLevel(struct node** list, char character)
-Dada una lista de nodos, retorna un puntero al nodo que tiene el caracter pasado por parámetro.
+Dada una lista de nodos, retorna un puntero al nodo que tiene el caracter pasado por parÃ¡metro.
 */
 
 struct node* findNodeInLevel(struct node** list, char character) {
@@ -203,8 +203,8 @@ struct node* findNodeInLevel(struct node** list, char character) {
 
 /*
 struct node* addSortedNewNodeInLevel(struct node** list, char character)
-Dada una lista de nodos, agrega un nuevo nodo a la lista de forma ordenada. Este nodo llevará
-el caracter pasado por parámetro y el resto de sus datos en cero.
+Dada una lista de nodos, agrega un nuevo nodo a la lista de forma ordenada. Este nodo llevarÃ¡
+el caracter pasado por parÃ¡metro y el resto de sus datos en cero.
 */
 
 struct node* addSortedNewNodeInLevel(struct node** list, char character) {
@@ -242,12 +242,12 @@ struct node* addSortedNewNodeInLevel(struct node** list, char character) {
 }
 
 /*
-Dado un puntero a un arreglo de punteros a strings y el tamaño del arreglo. Se encarga de borrar
+Dado un puntero a un arreglo de punteros a strings y el tamaÃ±o del arreglo. Se encarga de borrar
 una a una las strings y ademas borrar el arreglo.
 */
 
 void deleteArrayOfWords(char** words, int wordsCount) {
     for (int i = 0; i<wordsCount; i++){
-        free(*(words + i)); // Liberamos la memoria del puntero a la i-ésima palabra
+        free(*(words + i)); // Liberamos la memoria del puntero a la i-Ã©sima palabra
     }
 }

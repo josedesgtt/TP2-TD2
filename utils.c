@@ -31,11 +31,14 @@ agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 1 
 */
 
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
-    struct node* v_nodo = (struct node *) malloc(sizeof(struct node)); // Alojamos memoria para un nuevo nodo
-    v_nodo = kt->first; // Asignamos a v_nodo la dirección del primer nodo del primer nivel
+    struct node* v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo nodo
+    if (kt->first != NULL){
+    	v_nodo = kt->first; // Asignamos a v_nodo la dirección del primer nodo del primer nivel
+    }
     char* n_word = strDup(word); // Copiamos palabra para el último nodo de la palabra
+    struct node* a = (struct node *)malloc(sizeof(struct node));
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
-        struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
+        a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
         if (a == NULL) {   // Si el nodo no existe...
             addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
         }
@@ -46,7 +49,6 @@ void keysPredictAddWord(struct keysPredict* kt, char* word) {
             a->end = 1;
         }
         v_nodo = v_nodo->down;
-
      }
 }
 
@@ -73,7 +75,7 @@ void keysPredictRemoveWord(struct keysPredict* kt, char* word) {
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         struct node* a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-ésimo nivel cuya letra sea la i-ésima de la palabra
         if (a == NULL) {    // Si el nodo no existe...
-            i = strlen(word);
+            i = strLen(word);
         }
         if (i==strLen(word)-1){ // Si estamos en trabajando con el último nodo...
             a->end = 0;
@@ -98,7 +100,7 @@ struct node* keysPredictFind(struct keysPredict* kt, char* word) {
             return 0;
         }
         if (i==strLen(word)){
-            if(a->end == 1 && a->word == *word){
+            if(a->end == 1 && a->word == word){
                 return a;
             } else {
                 return 0;

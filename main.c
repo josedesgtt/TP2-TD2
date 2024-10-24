@@ -29,7 +29,7 @@ int main() {
 
     // strLen
     int len = strLen("hola");
-    printf("strDup(\"hola\") -> \"%i\"\n", len);
+    printf("strLen(\"hola\") -> \"%i\"\n", len);
     printf("\n");
 
     // strDup
@@ -43,6 +43,7 @@ int main() {
     
     // keysPredict - crear un diccionario
     keysPredictAddWord(kt, "papanatas");
+    /*
     keysPredictAddWord(kt, "zanahoria");
     keysPredictAddWord(kt, "oreja");
     keysPredictAddWord(kt, "ricardo");
@@ -56,7 +57,7 @@ int main() {
     keysPredictAddWord(kt, "bebe");
     keysPredictAddWord(kt, "pata");
     keysPredictPrint(kt);
-
+    
     // keysPredict - listar todas las palabras
     char** words;
     int wordsCount;
@@ -90,6 +91,6 @@ int main() {
 
     // keysPredict - borrar diccionario
     keysPredictDelete(kt);
-
+    */
     return 0;
 }

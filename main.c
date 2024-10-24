@@ -43,7 +43,7 @@ int main() {
     
     // keysPredict - crear un diccionario
     keysPredictAddWord(kt, "papanatas");
-    /*
+    
     keysPredictAddWord(kt, "zanahoria");
     keysPredictAddWord(kt, "oreja");
     keysPredictAddWord(kt, "ricardo");
@@ -65,14 +65,16 @@ int main() {
     for(int i=0; i<wordsCount; i++) {
         printf("%s\n", words[i]);
     }
+    
     deleteArrayOfWords(words, wordsCount);
 
     // keysPredict - encontrar palabras
+    
     findAndPrintAll(kt, "papa");
     findAndPrintAll(kt, "pata");
     findAndPrintAll(kt, "a");
     findAndPrintAll(kt, "zazz");
-
+    
     // keysPredict - predecir palabras
     predictAndPrintAll(kt,"or");
     predictAndPrintAll(kt,"ab");
@@ -80,7 +82,7 @@ int main() {
     predictAndPrintAll(kt,"pap");
     predictAndPrintAll(kt,"q");
     predictAndPrintAll(kt,"zap");
-
+    
     // keysPredict - predecir palabras
     keysPredictRemoveWord(kt,"");
     keysPredictRemoveWord(kt,"zaz");
@@ -88,7 +90,7 @@ int main() {
     keysPredictRemoveWord(kt,"papa");
     keysPredictRemoveWord(kt,"pata");
     keysPredictPrint(kt);
-
+    /*		
     // keysPredict - borrar diccionario
     keysPredictDelete(kt);
     */

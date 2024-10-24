@@ -31,16 +31,16 @@ agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 1 
 */
 
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
-    struct node* v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo 
+    struct node* v_nodo = (struct node )malloc(sizeof(struct node)); // Alojamos memoria para un nuevo nodo
     v_nodo = kt->first; // Asignamos a v_nodo la direccion del primer nodo del primer nivel
     char n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
     struct node* a = (struct node *)malloc(sizeof(struct node));
     for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
         if (v_nodo == 0) {
-            v_nodo = addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
+            addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
             kt->totalKeys++;
         } else {
-            a = findNodeInLevel(&v_nodo, word[i]);  
+            a = findNodeInLevel(&v_nodo, word[i]);  // Al nodo a le asignamos (en caso de existir) el nodo del i-¿simo nivel cuya letra sea la i-¿sima de la palabra
             if (a == NULL) {   // Si el nodo no existe...
                 addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
                 kt->totalKeys++;
@@ -50,11 +50,11 @@ void keysPredictAddWord(struct keysPredict* kt, char* word) {
                 // Configuramos el nodo
                 a->word = n_word;
                 a->end = 1;
+                kt->totalWords++;
             }
         }
         v_nodo = v_nodo->down;
-    }
-    kt->totalWords++;
+     }
 }
 
 /*

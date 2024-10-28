@@ -1,11 +1,16 @@
 #include "utils.h"
 
+
+// Paso las pruebas
+// Justificación: Pendiente
 int strLen(char* src) {
     int i = 1;
     while (src[i] != '\0') i++;
     return i;
 }
 
+// Paso las pruebas
+// Justificación: Pendiente
 char* strDup(char* src) {
     int size = strLen(src);
     char* copia = (char*) malloc(size);
@@ -13,6 +18,8 @@ char* strDup(char* src) {
     return copia;
 }
 
+// Paso las pruebas
+// Justificación: Pendiente
 struct keysPredict* keysPredictNew() {
     struct keysPredict* kt = (struct keysPredict*)malloc(sizeof(struct keysPredict));
     kt->first = 0;
@@ -21,47 +28,35 @@ struct keysPredict* keysPredictNew() {
     return kt;
 }
 
-/*
-Agrega una nueva palabra a la estructura keysPredict. Para esto debe ir recorriendo cada lista
-y en cada nivel agregar cada letra de la palabra en caso de ser necesario. Al final, en el último
-nodo, correspondiente a la última letra de la palabra, deberá hacer una copia de la palabra y
-agregarla en el nodo. Además deberá marcar este nodo como final, indicando un 1 en end.
-*/
 
+// No paso las pruebas
+// Justificación: Pendiente
 void keysPredictAddWord(struct keysPredict* kt, char* word) {
-    struct node* v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo
-    v_nodo = kt->first; // Asignamos a v_nodo la direccion del primer nodo del primer nivel
-    char* n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
+    struct node* varNode = (struct node *)malloc(sizeof(struct node));
     struct node* a = (struct node *)malloc(sizeof(struct node));
-    for (int i=0; i<strLen(word); i++) {    // Por cada letra en palabra...
-        if (v_nodo == 0) {
-            v_nodo = addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
+    char* newWord = strDup(word);
+    for (int i=0; i<strLen(word); i++) {
+        if (varNode == 0) {
+            varNode = addSortedNewNodeInLevel(&(kt->first), word[i]);
+            varNode = varNode->down;
             kt->totalKeys++;
         } else {
-            a = findNodeInLevel(&v_nodo, word[i]);
-            if (a == 0) {   // Si el nodo no existe...
-                addSortedNewNodeInLevel(&v_nodo, word[i]);  //  Lo creamos
+            a = findNodeInLevel(&varNode, word[i]);
+            if (a == 0) {
+                a = addSortedNewNodeInLevel(&varNode, word[i]);
+                varNode = a->down;
                 kt->totalKeys++;
             }
-            if (i==strLen(word)-1){ // Si estamos en trabajando con el ultimo nodo...
-                a = findNodeInLevel(&v_nodo, word[i]); //
-                // Configuramos el nodo
-                a->word = n_word;
+            if (i==strLen(word)-1){
+                a = findNodeInLevel(&varNode, word[i]);
+                a->word = newWord;
                 a->end = 1;
             }
         }
-        v_nodo = v_nodo->down;
     }
     kt->totalWords++;
 }
 
-/*
-Busca el nodo correspondiente a la ultima letra de la palabra a borrar y borra la palabra
-almacenada en dicho nodo. Adicionalmente marca el nodo con un 0 en end. Notar que los nodos
-de las letras que correspondian a la palabra no son borrados, sino que solo se borra la palabra
-del ultimo nodo. Es decir, la estructura va a quedar con nodos que podran no existir para las
-palabras que realmente tiene la estructura.
-*/
 void keysPredictRemoveWord(struct keysPredict* kt, char* word) {
     struct node* v_nodo = (struct node*)malloc(sizeof(struct node));
     v_nodo = kt->first;
@@ -88,12 +83,6 @@ void keysPredictRemoveWord(struct keysPredict* kt, char* word) {
     }
 }
 
-/*
-Busca en la estructura el nodo correspondiente a la palabra indicada, de no encontrarlo retorna
-un cero. Para esto debe recorrer la estructura segun cada letra de la palabra. El nodo retornado
-sera valido si esta marcado en end con 1 y el puntero word tiene la palabra buscada.
-*/
-
 struct node* keysPredictFind(struct keysPredict* kt, char* word) {
     struct node* v_nodo = (struct node*)malloc(sizeof(struct node));
     v_nodo = kt->first;
@@ -113,15 +102,6 @@ struct node* keysPredictFind(struct keysPredict* kt, char* word) {
     }
 }
 
-/*
-Dadas las primeras letras de una palabra, busca todas las palabras que contenga el prejo
-indicado. Para esto debe recorrer la estructura hasta alcanzar la ultima letra del prejo. A
-partir de ese nodo, debe recontruir todas las palabras que se puedan armar con la subestructura
-restante. Debe retornar estas palabras en una estructura de tipo arreglo de punteros a string
-(char**) como valor de retorno de la funcion. La cantidad de elementos de este arreglo de
-punteros estara dada por las palabras encontradas y debera retornarce en el puntero wordsCount
-pasado como parametro.
-*/
 char** keysPredictRun(struct keysPredict* kt, char* partialWord, int* wordsCount) {
     /*
     -
@@ -183,6 +163,8 @@ void keysPredictPrintAux(struct node* n, int level) {
 
 // Auxiliar functions
 
+// Paso las pruebas
+// Justificación: Pendiente
 struct node* findNodeInLevel(struct node** list, char character) {
     struct node* varNodo = *list; // Desreferenciamos list para obtener un puntero al nodo
     while (varNodo != 0) {

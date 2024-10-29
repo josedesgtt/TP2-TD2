@@ -1,5 +1,8 @@
 #include "utils.h"
 
+
+// Paso las pruebas
+// Justificación: Pendiente
 int strLen(char *src) {
   int i = 0;
   while (src[i] != '\0' && src != "")
@@ -7,14 +10,17 @@ int strLen(char *src) {
   return i;
 }
 
-char *strDup(char *src) {
-  int size = strLen(src);
-  char *copia = (char *)malloc(size);
-  for (int i = 0; i < size; i++)
-    copia[i] = (char)src[i];
-  return copia;
+// Paso las pruebas
+// Justificación: Pendiente
+char* strDup(char* src) {
+    int size = strLen(src);
+    char* copia = (char*) malloc(size);
+    for (int i=0; i<size; i++) copia[i] = (char) src[i];
+    return copia;
 }
 
+// Paso las pruebas
+// Justificación: Pendiente
 struct keysPredict *keysPredictNew() {
   struct keysPredict *kt =
       (struct keysPredict *)malloc(sizeof(struct keysPredict));
@@ -164,9 +170,10 @@ void keysPredictAddWord(struct keysPredict *kt, char *word) {
 
   // Auxiliar functions
 
-  struct node *findNodeInLevel(struct node * *list, char character) {
-    struct node *varNodo =
-        *list; // Desreferenciamos list para obtener un puntero al nodo
+// Paso las pruebas
+// Justificación: Pendiente
+struct node* findNodeInLevel(struct node** list, char character) {
+    struct node* varNodo = *list; // Desreferenciamos list para obtener un puntero al nodo
     while (varNodo != 0) {
       if (varNodo->character == character) {
         return varNodo;

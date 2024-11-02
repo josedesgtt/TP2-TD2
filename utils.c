@@ -31,10 +31,8 @@ struct keysPredict *keysPredictNew() {
 }
 
 void keysPredictAddWord(struct keysPredict *kt, char *word) {
-  struct node *v_nodo = (struct node *)malloc(
-      sizeof(struct node)); // Alojamos memoria para un nuevo
-  char *n_word =
-      strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
+  struct node *v_nodo = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria para un nuevo
+  char *n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
   struct node *a = (struct node *)malloc(sizeof(struct node));
   if (strLen(word) > 0) { // Sólo se ejecuta si no le pasamos un string vacío
     if (kt->first == 0) {
@@ -69,6 +67,7 @@ void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
     if (v_nodo != 0) {
       v_nodo->end = 0;
       free(v_nodo->word);
+      kt->totalWords--;
     }
   }
 }
@@ -110,7 +109,6 @@ retornar estas palabras en una estructura de tipo arreglo de punteros a string
 este arreglo de punteros estara dada por las palabras encontradas y debera
 retornarce en el puntero wordsCount pasado como parametro.
 */
-
 struct node *recursiveFindPrefix(struct node *n, char *partialWord) {
   struct node *v_node = (struct node *)malloc(sizeof(struct node));
   if (strLen(partialWord) != 0) {
@@ -120,14 +118,13 @@ struct node *recursiveFindPrefix(struct node *n, char *partialWord) {
     } else {
       return 0;
     }
-    
+
     // free(v_node);
   }
   return n;
 }
 
-void recursivePredictListAll(struct node *n, char **list, int totalWords,
-                             int *wordsCount) {
+void recursivePredictListAll(struct node *n, char **list, int totalWords, int *wordsCount) {
   if (totalWords != 0) {
     if (n->next != 0) {
       recursivePredictListAll(n->next, list, totalWords, wordsCount);
@@ -145,36 +142,180 @@ void recursivePredictListAll(struct node *n, char **list, int totalWords,
 
 char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount) {
   *wordsCount = 0;
-  struct node *firstPrefixNode = (struct node *)malloc(sizeof(struct node));
-  char ** words = (char **)malloc(sizeof(char*)*2);
-  // falta manejar los tamanos de los arreglos de forma dinamica
-  firstPrefixNode = recursiveFindPrefix(kt->first, partialWord);
-  recursivePredictListAll(firstPrefixNode, words, 2, wordsCount);
-  return words;
+  struct node *firstPrefixNode = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria dinámica para el nodo que contiene el prefijo
+  int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
+  char ** words = (char **)malloc(sizeof(char*)*wordsFromFirstPrefixNode); // Alojamos memoria dinámica para el arreglo de palabras
+  firstPrefixNode = recursiveFindPrefix(kt->first, partialWord); // Encontramos el primer nodo que tenga el prefijo
+  if (firstPrefixNode != 0) { // Si el primer nodo que tiene el prefijo no es nulo...
+    recursivePredictListAll(firstPrefixNode, words, 2, wordsCount); // A partir del primer nodo que tenga prefijo listamos a todas las palabras en words
+  }
+  return words; // Retornamos el arreglo de palabras
 }
 
-int keysPredictCountWordAux(struct node *n) {
-  /*
-  if (n->next == 0 && n->down == 0) {
-    if (n->end != 0) return 1;
-    else return 0;
-  } else {
-  if (n->end != 0) {
-    if (n->next != 0) return keysPredictCountWordAux(n->next) + 1;
-    if (n->down != 0) return keysPredictCountWordAux(n->down) + 1;
-  } else {
-    if (n->next != 0) return keysPredictCountWordAux(n->next);
-    if (n->down != 0) return keysPredictCountWordAux(n->down);
-  }}
-  */
+/*
+if (n->next == 0 && n->down == 0) {
+  if (n->end != 0) return 1;
+  else return 0;
+} else {
+if (n->end != 0) {
+  if (n->next != 0) return keysPredictCountWordAux(n->next) + 1;
+  if (n->down != 0) return keysPredictCountWordAux(n->down) + 1;
+} else {
+  if (n->next != 0) return keysPredictCountWordAux(n->next);
+  if (n->down != 0) return keysPredictCountWordAux(n->down);
+}}
+*/
+/*
+if (n->next != 0) {
+  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
+}
+if (n->down != 0) {
+  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
+}
+if (n->end != 0) return 1;
+else return 0;
+*/
+/*
+if (n->next != 0 && n->down != 0) {
+  if (n->next->end != 0 && n->down->end != 0) return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down) + 2;
+  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
+  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
+}
+if (n->next != 0) {
+  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
+}
+if (n->down != 0) {
+  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
+}
+if (n->end != 0) return 1;
+else return 0;
+*/
+/*
+  if (n->next != 0 && n->down != 0) {
+      return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down) + 2;
+  }
   if (n->next != 0) {
-    if (n->end != 0) return keysPredictCountWordAux(n->next) + 1;
+      if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
   }
   if (n->down != 0) {
-    if (n->end != 0) return keysPredictCountWordAux(n->down) + 1;
+      if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
   }
   if (n->end != 0) return 1;
   else return 0;
+*/
+/*
+if(n->next != 0 && n->down != 0){
+    return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
+} else if (n->next !=  0) {
+    return keysPredictCountWordAux (n->next);
+} else if (n->down != 0) {
+    return keysPredictCountWordAux (n->down);
+} else {
+    if (n->end != 0){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+*/
+/*
+int wordsCountFromNode = 0;
+
+if (n->next != 0 && n->down != 0){
+    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
+} else if (n->next !=  0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->next);
+} else if (n->down != 0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->down);
+}
+
+if (n->end !=  0){
+    return 1 +  wordsCountFromNode;
+} else {
+    return 0 +  wordsCountFromNode;
+}
+*/
+/* sagrado
+int wordsCountFromNode = 0;
+
+if (n->next != 0 && n->down != 0){
+    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
+} else if (n->next !=  0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->next);
+} else if (n->down != 0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->down);
+}
+
+if (n->end !=  0){
+    return 1 +  wordsCountFromNode;
+} else {
+    return 0 + wordsCountFromNode;
+}
+*/
+/* Error de segmentación
+if (n->end != 0){
+    if (n->next != 0 && n->down != 0){
+        return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down)+1;
+    } else if (n->next != 0){
+        return keysPredictCountWordAux(n->next) + 1;
+    } else if (n->down != 0){
+        return keysPredictCountWordAux(n->next) + 1;
+    }
+    return 1;
+} else {
+    if (n->next != 0 && n->down != 0){
+        return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down);
+    } else if (n->next != 0){
+        return keysPredictCountWordAux(n->next);
+    } else if (n->down != 0){
+        return keysPredictCountWordAux(n->next);
+    }
+    return 0;
+}
+*/
+/* funco con variable
+int wordsCountFromNode = 0;
+
+if (n->next != 0 && n->down != 0){
+    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
+} else if (n->next !=  0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->next);
+} else if (n->down != 0) {
+    wordsCountFromNode = keysPredictCountWordAux (n->down);
+}
+
+if (n->end !=  0){
+    return wordsCountFromNode + 1;
+} else {
+    return wordsCountFromNode;
+}
+*/
+int keysPredictCountWordAux(struct node *n) {
+    if (n->next != 0 && n->down != 0){
+        if (n->end != 0){
+            return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down)+1;
+        } else {
+            return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down);
+        }
+    } else if (n->next != 0){
+        if (n->end != 0){
+            return keysPredictCountWordAux(n->next)+1;
+        } else {
+            return keysPredictCountWordAux(n->next);
+        }
+    } else if (n->down != 0){
+        if (n->end != 0){
+            return keysPredictCountWordAux(n->down)+1;
+        } else {
+            return keysPredictCountWordAux(n->down);
+        }
+    } else {
+        if (n->end !=0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }
 
 char **keysPredictListAll(struct keysPredict *kt, int *wordsCount) {
@@ -227,7 +368,17 @@ void keysPredictPrintAux(struct node *n, int level) {
   }
 }
 
+void initNode(struct node* node, char input_character, struct node* input_next, struct node* input_down, int input_end, char* input_word) {
+  node->character = input_character;
+  node->next = input_next;
+  node->down  = input_down;
+  node->end = input_end;
+  node->word = input_word;
+}
+
 // Auxiliar functions
+
+
 
 // Paso las pruebas
 // Justificación: Pendiente

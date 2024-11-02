@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include "utils.h"
 
+/*
+Ejercicio 5 (Uso de inteligencia artificial)
+
+1) En el trabajo no se hizo uso de la IA como herramienta de asistencia a la hora de la resolución de ejercicios.
+2) Tomando en cuenta lo dicho en la pregunta anterior, no es posible responder esta pregunta.
+3) No nos hemos encontrado con alguna dificultad a la hora de usar IA por el mismo hecho de que no la usamos.
+4) Con respecto a este lenguaje no. Nosotros sí creemos que puede llegar a ser de utilidad pero en este trabajo no fue necesario la asistencia de esta herramienta.
+*/
+
 void predictAndPrintAll(struct keysPredict* kt, char* partialWord ) {
     char** words;
     int wordsCount;

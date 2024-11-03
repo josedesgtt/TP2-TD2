@@ -1,27 +1,27 @@
 #include "utils.h"
 
-// Paso las pruebas
-// Justificación: Pendiente
+
 int strLen(char *src) {
   int i = 0;
+    // Itera siempre y cuando no se detecte el null termina
   while (src[i] != '\0' && src != "")
     i++;
   return i;
 }
 
-// Paso las pruebas
-// Justificación: Pendiente
+
 char* strDup(char* src) {
+  //Declaramos el size y el espacio de memoria donde vamos a guardar la copa (+1 por el null termina)
   int size = strLen(src);
   char* copia = (char *)malloc(sizeof(char)*(size+1));
   copia[size] = '\0';
+  // Va copiando caracter a caracter
   for (int i = 0; i < size; i++)
     copia[i] = (char)src[i];
   return copia;
 }
 
-// Paso las pruebas
-// Justificación: Pendiente
+
 struct keysPredict *keysPredictNew() {
   struct keysPredict *kt = (struct keysPredict *)malloc(sizeof(struct keysPredict));
   kt->first = 0;
@@ -60,14 +60,14 @@ void keysPredictAddWord(struct keysPredict *kt, char *word) {
 }
 
 void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
-  if (strLen(word) > 0) {
-     struct node *v_nodo = keysPredictFind(kt, word);
-    if (v_nodo != 0) {
+  if (strLen(word) > 0) { //si el len de la palabra es mayor a 0
+     struct node *v_nodo = keysPredictFind(kt, word); //buscamos el nodo que contenga la palabra 
+    if (v_nodo != 0) { //si no es nulo, osea si existe el nodo
       v_nodo->end = 0;
-      free(v_nodo->word);
-      kt->totalWords--;
+      free(v_nodo->word); //borramos la palabra
+      kt->totalWords--; //decrentamos la cantidad de palabras en la estructura
     }
-    free(v_nodo);
+    free(v_nodo); //liberamos v_nodo
   }
 }
 
@@ -95,41 +95,33 @@ struct node *keysPredictFind(struct keysPredict *kt, char *word) {
   }
 }
 
-/*
-Dadas las primeras letras de una palabra, busca todas las palabras que
-contenga el prejo indicado. Para esto debe recorrer la estructura hasta
-alcanzar la ultima letra del prejo. A partir de ese nodo, debe recontruir
-todas las palabras que se puedan armar con la subestructura restante. Debe
-retornar estas palabras en una estructura de tipo arreglo de punteros a string
-(char**) como valor de retorno de la funcion. La cantidad de elementos de
-este arreglo de punteros estara dada por las palabras encontradas y debera
-retornarce en el puntero wordsCount pasado como parametro.
-*/
+/* funcion auxiliar que se usa para keypredictrun, devuelve el puntero al nivel de abajo del ultimo nodo del prefijo especificado
+**/
 struct node* recursiveFindPrefix(struct node* n, char* partialWord) {
-  struct node *v_node = findNodeInLevel(&n, partialWord[0]);
-  if (strLen(partialWord) != 1) {
-    if (v_node != NULL) {
-      return recursiveFindPrefix(v_node->down, partialWord + 1);
-    } else {
+  struct node *v_node = findNodeInLevel(&n, partialWord[0]); //buscamos el primero nodo que contenga el primer caracter del prefijo
+  if (strLen(partialWord) != 1) { //si no se llego a la ultima letra...
+    if (v_node != NULL) { //si encuentra la letra correspondiente...
+      return recursiveFindPrefix(v_node->down, partialWord + 1); //sigue iterando
+    } else { //si no retorna 0
       return 0;
     }
   }
-  if (v_node != NULL) {
-    return v_node->down;
-  } else {
-    return 0;
+  if (v_node != NULL) { //si encuentra la ultima letra
+    return v_node->down; //devuelve el puntero al nivel de abajo de esa letra
+  } else { // si no retorna 0
+    return 0; 
   }
 }
 
 void recursivePredictListAll(struct node *n, char **list, int totalWords, int *wordsCount) {
   if (totalWords != 0) {
-    if (n->next != 0) {
+    if (n->next != 0) {  //nos preguntamos si el nodo siguiente es nulo, si no es nulo...
       recursivePredictListAll(n->next, list, totalWords, wordsCount);
     }
-    if (n->down != 0) {
+    if (n->down != 0) { //nos preguntamos si el nodo de abajo no es nulo, si no es nulo...
       recursivePredictListAll(n->down, list, totalWords, wordsCount);
     }
-    if (n->end != 0) {
+    if (n->end != 0) { //nos preguntamos si existe una palabra en el nodo, si existe la agregamos al array de palabras
       list[*wordsCount] = strDup(n->word);
       totalWords--;
       (*wordsCount)++;
@@ -156,192 +148,28 @@ char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount
   return words; // Retornamos el arreglo de palabras
 }
 
-/*
 
-char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount) {
-  *wordsCount = 0;
-  char words;
-  struct node *firstPrefixNode = (struct node*)malloc(sizeof(struct node)); // Alojamos memoria dinámica para el nodo que
-  // contiene el prefijo
-  firstPrefixNode = recursiveFindPrefix(kt->first,partialWord); // Encontramos el primer nodo que tenga el prefijo
-  // Alojamos memoria dinámica                                               // para el arreglo de palabras
-  if (firstPrefixNode != 0) { // Si el primer nodo que tiene el prefijo no es nulo...
-    int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
-    if (wordsFromFirstPrefixNode != 0) {
-      words = (char *)malloc(sizeof(char) *wordsFromFirstPrefixNode);
-      recursivePredictListAll(firstPrefixNode, words, wordsFromFirstPrefixNode, wordsCount); // A partir del primer nodo que tenga prefijo listamos a
-    // todas las palabras en words
-    } else {
-      words = 0;
-    }
-  } else {
-    words = 0;
-  }
-  return words; // Retornamos el arreglo de palabras
-}
-
-*/
-
-
-/*
-if (n->next == 0 && n->down == 0) {
-  if (n->end != 0) return 1;
-  else return 0;
-} else {
-if (n->end != 0) {
-  if (n->next != 0) return keysPredictCountWordAux(n->next) + 1;
-  if (n->down != 0) return keysPredictCountWordAux(n->down) + 1;
-} else {
-  if (n->next != 0) return keysPredictCountWordAux(n->next);
-  if (n->down != 0) return keysPredictCountWordAux(n->down);
-}}
-*/
-/*
-if (n->next != 0) {
-  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
-}
-if (n->down != 0) {
-  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
-}
-if (n->end != 0) return 1;
-else return 0;
-*/
-/*
-if (n->next != 0 && n->down != 0) {
-  if (n->next->end != 0 && n->down->end != 0) return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down) + 2;
-  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
-  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
-}
-if (n->next != 0) {
-  if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
-}
-if (n->down != 0) {
-  if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
-}
-if (n->end != 0) return 1;
-else return 0;
-*/
-/*
-  if (n->next != 0 && n->down != 0) {
-      return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down) + 2;
-  }
-  if (n->next != 0) {
-      if (n->next->end != 0) return keysPredictCountWordAux(n->next) + 1;
-  }
-  if (n->down != 0) {
-      if (n->down->end != 0) return keysPredictCountWordAux(n->down) + 1;
-  }
-  if (n->end != 0) return 1;
-  else return 0;
-*/
-/*
-if(n->next != 0 && n->down != 0){
-    return keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
-} else if (n->next !=  0) {
-    return keysPredictCountWordAux (n->next);
-} else if (n->down != 0) {
-    return keysPredictCountWordAux (n->down);
-} else {
-    if (n->end != 0){
-        return 1;
-    } else {
-        return 0;
-    }
-}
-*/
-/*
-int wordsCountFromNode = 0;
-
-if (n->next != 0 && n->down != 0){
-    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
-} else if (n->next !=  0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->next);
-} else if (n->down != 0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->down);
-}
-
-if (n->end !=  0){
-    return 1 +  wordsCountFromNode;
-} else {
-    return 0 +  wordsCountFromNode;
-}
-*/
-/* sagrado
-int wordsCountFromNode = 0;
-
-if (n->next != 0 && n->down != 0){
-    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
-} else if (n->next !=  0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->next);
-} else if (n->down != 0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->down);
-}
-
-if (n->end !=  0){
-    return 1 +  wordsCountFromNode;
-} else {
-    return 0 + wordsCountFromNode;
-}
-*/
-/* Error de segmentación
-if (n->end != 0){
-    if (n->next != 0 && n->down != 0){
-        return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down)+1;
-    } else if (n->next != 0){
-        return keysPredictCountWordAux(n->next) + 1;
-    } else if (n->down != 0){
-        return keysPredictCountWordAux(n->next) + 1;
-    }
-    return 1;
-} else {
-    if (n->next != 0 && n->down != 0){
-        return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down);
-    } else if (n->next != 0){
-        return keysPredictCountWordAux(n->next);
-    } else if (n->down != 0){
-        return keysPredictCountWordAux(n->next);
-    }
-    return 0;
-}
-*/
-/* funco con variable
-int wordsCountFromNode = 0;
-
-if (n->next != 0 && n->down != 0){
-    wordsCountFromNode = keysPredictCountWordAux(n->next) + keysPredictCountWordAux(n->down);
-} else if (n->next !=  0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->next);
-} else if (n->down != 0) {
-    wordsCountFromNode = keysPredictCountWordAux (n->down);
-}
-
-if (n->end !=  0){
-    return wordsCountFromNode + 1;
-} else {
-    return wordsCountFromNode;
-}
-*/
 int keysPredictCountWordAux(struct node *n) {
-    if (n->next != 0 && n->down != 0){
-        if (n->end != 0){
+    if (n->next != 0 && n->down != 0){ //nos preguntamos tanto si el nodo de abajo como el siguiente son nulos
+        if (n->end != 0){ //si existe una palabra en el nodo...
             return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down)+1;
         } else {
             return keysPredictCountWordAux(n->next)+keysPredictCountWordAux(n->down);
         }
-    } else if (n->next != 0){
-        if (n->end != 0){
+    } else if (n->next != 0){ //nos preguntamos si el nodo siguiente es nulo, si no es nulo...
+        if (n->end != 0){ //nos preguntamos si existe una palabra definida en el nodo, si existe...
             return keysPredictCountWordAux(n->next)+1;
         } else {
             return keysPredictCountWordAux(n->next);
         }
-    } else if (n->down != 0){
-        if (n->end != 0){
+    } else if (n->down != 0){ //nos preguntamos si el nodo de abajo es nulo, si no es nulo...
+        if (n->end != 0){ //nos preguntamos si existe una palabra definida en el nodo, si existe...
             return keysPredictCountWordAux(n->down)+1;
         } else {
             return keysPredictCountWordAux(n->down);
         }
     } else {
-        if (n->end !=0) {
+        if (n->end !=0) { //nos preguntamos si existe una palabra definida en el nodo, si existe...
             return 1;
         } else {
             return 0;
@@ -350,23 +178,27 @@ int keysPredictCountWordAux(struct node *n) {
 }
 
 char **keysPredictListAll(struct keysPredict *kt, int *wordsCount) {
-  *wordsCount = 0;
-  char **ktWords = (char **)malloc(sizeof(char *) * kt->totalWords);
+  *wordsCount = 0;  // Inicializamos el wordcount en 0
+  char **ktWords = (char **)malloc(sizeof(char *) * kt->totalWords); // Creamos un array de strings dinámico que ocupa tantos bytes como total de palabras del kt char
+  
+   // Llamamos la siguiente función para almacenar en ktWords las palabras del kt...
+  // También lo usamos para actualizar y modificar wordsCount según la cantidad de palabras que haya en el kt...
   recursivePredictListAll(kt->first, ktWords, kt->totalWords, wordsCount);
+  // Retornamos ktWords
   return ktWords;
 }
 
 void recursiveDelete(struct node *n) {
-  if (n->next != 0) {
+  if (n->next != 0) { //nos preguntamos si el nodo siguiete es nulo, si no es nulo...
     recursiveDelete(n->next);
   }
-  if (n->down != 0) {
-    recursiveDelete(n->down);
+  if (n->down != 0) { // nos preguntamos si el nodo de abajo es nulo, si es nulo...
+    recursiveDelete(n->down); 
   }
-  if (n->end != 0) {
+  if (n->end != 0) { //nos preguntamos si existe una palabra en el nodo , si existe la borramos
     deleteArrayOfWords(&(n->word), 1);
   }
-  free(n);
+  free(n); //borramos el nodo sobre el cual estamos evaluando
 }
 
 void keysPredictDelete(struct keysPredict *kt) {

@@ -15,12 +15,13 @@ void predictAndPrintAll(struct keysPredict* kt, char* partialWord ) {
     char** words;
     int wordsCount;
     words = keysPredictRun(kt, partialWord, &wordsCount);
-    printf("Predicts: %s = ", partialWord);
+    printf("Predicts (%i): %s = ", wordsCount, partialWord);
     for(int i=0; i<wordsCount; i++) {
-        printf("%s,", words[i]);
+        printf("%s", words[i]);
     }
     printf("\n");
     deleteArrayOfWords(words, wordsCount);
+    free(words);
 }
 
 void findAndPrintAll(struct keysPredict* kt, char* word ) {
@@ -97,14 +98,13 @@ int main() {
     // struct node* addSortedNewNodeInLevel(struct node** list, char character)
     struct keysPredict* kt_aux = keysPredictNew();
     kt_aux->first = n11;
-printf("\nAgregamos letras con addSortedNewNodeInLevel\nAntes de añadir:\n");
+    printf("\nAgregamos letras con addSortedNewNodeInLevel\nAntes de añadir:\n");
     keysPredictPrint(kt_aux);
     printf("\nAñadimos \'c\' en el primer nivel, \'a\' en el segundo y \' \':\n");
     kt_aux->first = addSortedNewNodeInLevel(&(kt_aux->first), 'c');
     kt_aux->first->down = addSortedNewNodeInLevel(&kt_aux->first->down, 'a');
     kt_aux->first->down->down = addSortedNewNodeInLevel(&kt_aux->first->down->down, ' ');
     keysPredictPrint(kt_aux);
-    free(kt_aux);
 
     // EJERCICIO 3
 
@@ -117,18 +117,18 @@ printf("\nAgregamos letras con addSortedNewNodeInLevel\nAntes de añadir:\n");
     keysPredictAddWord(kt, "rinoceronte");
     keysPredictAddWord(kt, "casa");
     keysPredictAddWord(kt, "rino");
-    keysPredictPrint(kt);
-    keysPredictRemoveWord(kt, "canoa");
-    keysPredictAddWord(kt, "pato");
+    keysPredictAddWord(kt, "camion");
     keysPredictPrint(kt);
     predictAndPrintAll(kt,"c");
     predictAndPrintAll(kt,"ca");
+    predictAndPrintAll(kt, "cam");
+    predictAndPrintAll(kt, "can");
     predictAndPrintAll(kt,"casa");
+    predictAndPrintAll(kt, "camion");
+    predictAndPrintAll(kt, "c");
     predictAndPrintAll(kt,"casas");
 
     // Testeamos con casos grandes
-
-
 
     // keysPredict - encontrar palabras
 

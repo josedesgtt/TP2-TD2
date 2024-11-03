@@ -1,5 +1,175 @@
 #include "utils.h"
 
+
+/*
+Devuelve la longitud de una cadena de texto.
+*/
+int strLen(char *src) {
+  int i = 0;
+  // Itera siempre y cuando no se detecte el null termina
+  while (src[i] != '\0' && src != "")
+    i++;
+  return i;
+}
+
+/*
+Devuelve una copia de una cadena de texto.
+*/
+char* strDup(char* src) {
+  //Declaramos el size y el espacio de memoria donde vamos a guardar la copa (+1 por el null termina)
+  int size = strLen(src);
+  char* copia = (char *)malloc(sizeof(char)*(size+1));
+  copia[size] = '\0';
+    // Va copiando caracter a caracter
+  for (int i = 0; i < size; i++)
+    copia[i] = (char)src[i];
+  return copia;
+}
+
+/*
+Crea una nueva instancia vacía de tipo keysPredict.
+*/
+struct keysPredict *keysPredictNew() {
+  struct keysPredict *kt = (struct keysPredict *)malloc(sizeof(struct keysPredict));
+  kt->first = 0;
+  kt->totalKeys = 0;
+  kt->totalWords = 0;
+  return kt;
+}
+/*
+Agrega una palabra a un keysPredict.
+*/
+void keysPredictAddWord(struct keysPredict *kt, char *word) {
+  struct node *v_nodo; // Alojamos memoria para un nuevo
+  char *n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
+  if (strLen(word) > 0) { // Sólo se ejecuta si no le pasamos un string vacío
+    if (kt->first == 0) {
+      kt->first = addSortedNewNodeInLevel(&kt->first, word[0]);
+      v_nodo = kt->first;
+    } else {
+      if (findNodeInLevel(&kt->first, word[0]) == NULL) {
+        kt->first = addSortedNewNodeInLevel(&kt->first, word[0]);
+      }
+      v_nodo = findNodeInLevel(&kt->first, word[0]);
+    }
+    kt->totalKeys++;
+    for (int i = 1; i < strLen(word); i++) { // Por cada letra en palabra...
+      if (v_nodo->down == 0) {
+        v_nodo->down = addSortedNewNodeInLevel(&v_nodo->down, word[i]);
+      } else if (findNodeInLevel(&v_nodo->down, word[i]) == NULL) {
+        v_nodo->down = addSortedNewNodeInLevel(&v_nodo->down, word[i]);
+      }
+      v_nodo = findNodeInLevel(&v_nodo->down, word[i]);
+      kt->totalKeys++;
+    }
+    v_nodo->end = 1;
+    v_nodo->word = n_word;
+    kt->totalWords++;
+  }
+}
+
+/*
+Borra una palabra de un keysPredict.
+*/
+void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
+  if (strLen(word) > 0) {
+     struct node *v_nodo = keysPredictFind(kt, word);
+    if (v_nodo != 0) {
+      v_nodo->end = 0;
+      free(v_nodo->word);
+      kt->totalWords--;
+    }
+    free(v_nodo);
+  }
+}
+
+/*
+Busca una palabra en un keysPredict y retorna el puntero a su último nodo.
+*/
+struct node *keysPredictFind(struct keysPredict *kt, char *word) {
+  if (strLen(word) > 0) {
+    struct node *v_nodo = kt->first;
+    for (int i = 0; i < strLen(word); i++) { // Por cada letra en palabra...
+      struct node *a = findNodeInLevel(&v_nodo,word[i]); // Al nodo a le asignamos (en caso de existir) el nodo del
+      // i-ésimo nivel cuya letra sea la i-ésima de la palabra
+      if (a == 0) { // Si el nodo no existe...
+        return 0;
+      }
+      if (i == strLen(word) - 1) {
+        if (a->end == 1) {
+            return a;
+        } else {
+          return 0;
+        }
+      }
+      v_nodo = a;
+      v_nodo = v_nodo->down;
+    }
+  } else {
+    return 0;
+  }
+}
+
+
+/*
+Función auxiliar correspondiente a keysPredictRun, busca (de existir) el nivel de abajo del último nodo del prefijo solicitado.
+*/
+struct node* recursiveFindPrefix(struct node* n, char* partialWord) {
+  struct node *v_node = findNodeInLevel(&n, partialWord[0]);
+  if (strLen(partialWord) != 1) {
+    if (v_node != NULL) {
+      return recursiveFindPrefix(v_node->down, partialWord + 1);
+    } else {
+      return 0;
+    }
+  }
+  if (v_node != NULL) {
+    return v_node->down;
+  } else {
+    return 0;
+  }
+}
+
+/*
+Función auxiliar para keysPredictListAll. Devuelve sólo
+*/
+void recursivePredictListAll(struct node *n, char **list, int totalWords, int *wordsCount) {
+  if (totalWords != 0) {
+    if (n->next != 0) {
+      recursivePredictListAll(n->next, list, totalWords, wordsCount);
+    }
+    if (n->down != 0) {
+      recursivePredictListAll(n->down, list, totalWords, wordsCount);
+    }
+    if (n->end != 0) {
+      list[*wordsCount] = strDup(n->word);
+      totalWords--;
+      (*wordsCount)++;
+    }
+  }
+}
+
+char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount) {
+  *wordsCount = 0;
+  char  **words;
+  struct node *firstPrefixNode = recursiveFindPrefix(kt->first,partialWord); // Encontramos el primer nodo que tenga el prefijo
+  // Alojamos memoria dinámica                                               // para el arreglo de palabras
+  if (firstPrefixNode != 0) { // Si el primer nodo que tiene el prefijo no es nulo...
+    int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
+    if (wordsFromFirstPrefixNode != 0) {
+      words = (char **)malloc(sizeof(char *) *wordsFromFirstPrefixNode);
+      recursivePredictListAll(firstPrefixNode, words, wordsFromFirstPrefixNode, wordsCount); // A partir del primer nodo que tenga prefijo listamos a
+    } else {
+      return 0;
+    }
+  } else {
+    words = 0;
+  }
+  return words; // Retornamos el arreglo de palabras
+}
+
+#include "utils.h"
+
 /*
 Devuelve la longitud de una cadena de texto.
 */
@@ -49,7 +219,7 @@ void keysPredictAddWord(struct keysPredict *kt, char *word) {
     } else { //Si kt tiene algo
       if (findNodeInLevel(&kt->first, word[0]) == NULL) { //Se fija si se encuentra el primer nodo
         kt->first = addSortedNewNodeInLevel(&kt->first, word[0]); //Si no está, lo agrega
-      } 
+      }
       v_nodo = findNodeInLevel(&kt->first, word[0]); //Guardamos el puntero al primer nodo
     }
     kt->totalKeys++;
@@ -120,7 +290,7 @@ struct node* recursiveFindPrefix(struct node* n, char* partialWord) {
   if (strLen(partialWord) != 1) { //En caso de que no hayamos llegado a la última letra del prefijo
     v_node = findNodeInLevel(&n, partialWord[0]); //Busca la letra correspondiente
     if (v_node != NULL) { //Si existe, sigue iterando
-      return recursiveFindPrefix(v_node->down, partialWord + 1); 
+      return recursiveFindPrefix(v_node->down, partialWord + 1);
     } else { //Sino, retorna 0
       return 0;
     }
@@ -211,10 +381,10 @@ char **keysPredictListAll(struct keysPredict *kt, int *wordsCount) {
 
 void recursiveDelete(struct node *n) {
   if (n->next != 0) { //nos preguntamos si el siguiente nodo es nulo, si no es nulo...
-    recursiveDelete(n->next); 
+    recursiveDelete(n->next);
   }
   if (n->down != 0) {//nos preguntamos si el nodo del siguiente nivel es nulo, si no es nul...
-    recursiveDelete(n->down); 
+    recursiveDelete(n->down);
   }
   if (n->end != 0) { //si existe una palabra en el nodo, la borramos
     deleteArrayOfWords(&(n->word), 1);
@@ -351,3 +521,4 @@ void deleteArrayOfWords(char **words, int wordsCount) {
     free(*(words + i)); // Liberamos la memoria del puntero a la i-ésima palabra
   }
 }
+

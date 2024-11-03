@@ -11,9 +11,10 @@ int strLen(char *src) {
 
 // Paso las pruebas
 // Justificación: Pendiente
-char *strDup(char *src) {
+char* strDup(char* src) {
   int size = strLen(src);
-  char *copia = (char *)malloc(size);
+  char* copia = (char *)malloc(sizeof(char)*(size+1));
+  copia[size] = '\0';
   for (int i = 0; i < size; i++)
     copia[i] = (char)src[i];
   return copia;
@@ -22,8 +23,7 @@ char *strDup(char *src) {
 // Paso las pruebas
 // Justificación: Pendiente
 struct keysPredict *keysPredictNew() {
-  struct keysPredict *kt =
-      (struct keysPredict *)malloc(sizeof(struct keysPredict));
+  struct keysPredict *kt = (struct keysPredict *)malloc(sizeof(struct keysPredict));
   kt->first = 0;
   kt->totalKeys = 0;
   kt->totalWords = 0;
@@ -62,13 +62,13 @@ void keysPredictAddWord(struct keysPredict *kt, char *word) {
 
 void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
   if (strLen(word) > 0) {
-    struct node *v_nodo = (struct node *)malloc(sizeof(struct node));
-    v_nodo = keysPredictFind(kt, word);
+     struct node *v_nodo = keysPredictFind(kt, word);
     if (v_nodo != 0) {
       v_nodo->end = 0;
       free(v_nodo->word);
       kt->totalWords--;
     }
+    free(v_nodo);
   }
 }
 
@@ -77,10 +77,8 @@ struct node *keysPredictFind(struct keysPredict *kt, char *word) {
     struct node *v_nodo = (struct node *)malloc(sizeof(struct node));
     v_nodo = kt->first;
     for (int i = 0; i < strLen(word); i++) { // Por cada letra en palabra...
-      struct node *a = findNodeInLevel(
-          &v_nodo,
-          word[i]); // Al nodo a le asignamos (en caso de existir) el nodo del
-                    // i-ésimo nivel cuya letra sea la i-ésima de la palabra
+      struct node *a = findNodeInLevel(&v_nodo,word[i]); // Al nodo a le asignamos (en caso de existir) el nodo del
+      // i-ésimo nivel cuya letra sea la i-ésima de la palabra
       if (a == 0) { // Si el nodo no existe...
         return 0;
       }
@@ -109,19 +107,22 @@ retornar estas palabras en una estructura de tipo arreglo de punteros a string
 este arreglo de punteros estara dada por las palabras encontradas y debera
 retornarce en el puntero wordsCount pasado como parametro.
 */
-struct node *recursiveFindPrefix(struct node *n, char *partialWord) {
-  struct node *v_node = (struct node *)malloc(sizeof(struct node));
-  if (strLen(partialWord) != 0) {
+struct node* recursiveFindPrefix(struct node* n, char* partialWord) {
+  struct node* v_node = (struct node *)malloc(sizeof(struct node));
+  if (strLen(partialWord) != 1) {
     v_node = findNodeInLevel(&n, partialWord[0]);
     if (v_node != NULL) {
-      return recursiveFindPrefix(v_node->down, partialWord+1);
+      return recursiveFindPrefix(v_node->down, partialWord + 1);
     } else {
       return 0;
     }
-
-    // free(v_node);
   }
-  return n;
+  v_node = findNodeInLevel(&n, partialWord[0]);
+  if (v_node != NULL) {
+    return v_node->down;
+  } else {
+    return 0;
+  }
 }
 
 void recursivePredictListAll(struct node *n, char **list, int totalWords, int *wordsCount) {
@@ -142,15 +143,52 @@ void recursivePredictListAll(struct node *n, char **list, int totalWords, int *w
 
 char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount) {
   *wordsCount = 0;
-  struct node *firstPrefixNode = (struct node *)malloc(sizeof(struct node)); // Alojamos memoria dinámica para el nodo que contiene el prefijo
-  int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
-  char ** words = (char **)malloc(sizeof(char*)*wordsFromFirstPrefixNode); // Alojamos memoria dinámica para el arreglo de palabras
-  firstPrefixNode = recursiveFindPrefix(kt->first, partialWord); // Encontramos el primer nodo que tenga el prefijo
+  char  **words;
+  struct node *firstPrefixNode = (struct node*)malloc(sizeof(struct node)); // Alojamos memoria dinámica para el nodo que
+  // contiene el prefijo
+  firstPrefixNode = recursiveFindPrefix(kt->first,partialWord); // Encontramos el primer nodo que tenga el prefijo
+  // Alojamos memoria dinámica                                               // para el arreglo de palabras
   if (firstPrefixNode != 0) { // Si el primer nodo que tiene el prefijo no es nulo...
-    recursivePredictListAll(firstPrefixNode, words, 2, wordsCount); // A partir del primer nodo que tenga prefijo listamos a todas las palabras en words
+    int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
+    if (wordsFromFirstPrefixNode != 0) {
+      words = (char **)malloc(sizeof(char) *wordsFromFirstPrefixNode);
+      recursivePredictListAll(firstPrefixNode, words, wordsFromFirstPrefixNode, wordsCount); // A partir del primer nodo que tenga prefijo listamos a
+    // todas las palabras en words
+    } else {
+      words = 0;
+    }
+  } else {
+    words = 0;
   }
   return words; // Retornamos el arreglo de palabras
 }
+
+/*
+
+char **keysPredictRun(struct keysPredict *kt, char *partialWord, int *wordsCount) {
+  *wordsCount = 0;
+  char words;
+  struct node *firstPrefixNode = (struct node*)malloc(sizeof(struct node)); // Alojamos memoria dinámica para el nodo que
+  // contiene el prefijo
+  firstPrefixNode = recursiveFindPrefix(kt->first,partialWord); // Encontramos el primer nodo que tenga el prefijo
+  // Alojamos memoria dinámica                                               // para el arreglo de palabras
+  if (firstPrefixNode != 0) { // Si el primer nodo que tiene el prefijo no es nulo...
+    int wordsFromFirstPrefixNode = keysPredictCountWordAux(firstPrefixNode);
+    if (wordsFromFirstPrefixNode != 0) {
+      words = (char *)malloc(sizeof(char) *wordsFromFirstPrefixNode);
+      recursivePredictListAll(firstPrefixNode, words, wordsFromFirstPrefixNode, wordsCount); // A partir del primer nodo que tenga prefijo listamos a
+    // todas las palabras en words
+    } else {
+      words = 0;
+    }
+  } else {
+    words = 0;
+  }
+  return words; // Retornamos el arreglo de palabras
+}
+
+*/
+
 
 /*
 if (n->next == 0 && n->down == 0) {
@@ -401,52 +439,69 @@ Este nodo llevará el caracter pasado por parámetro y el resto de sus datos en
 cero.
 */
 
-struct node *addSortedNewNodeInLevel(struct node **list, char character) {
-  struct node *var_nodo = *list;
-  struct node *newNode = (struct node *)malloc(sizeof(struct node));
+struct node* addSortedNewNodeInLevel(struct node **list, char character) {
+  struct node* var_nodo = *list;
+  struct node* newNode = (struct node* )malloc(sizeof(struct node));
+  float aux_char, aux_var_nodo_char, aux_var_nodo_next_char;
   newNode->character = character;
   newNode->down = 0;
   newNode->end = 0;
   newNode->next = 0;
   newNode->word = 0;
+  aux_char = (float)character;
+  if (aux_char == 45.0) {
+    aux_char = 110.5;
+  }
   while (var_nodo != 0 && var_nodo->next != 0) { // Más de dos nodos
     // Agregar en medio
-    if (var_nodo->character <= character &&
-        var_nodo->next->character >= character) {
+    aux_var_nodo_char = (float)var_nodo->character;
+    aux_var_nodo_next_char = (float)var_nodo->next->character;
+    if (aux_var_nodo_char == 45.0) {
+      aux_var_nodo_char = 110.5;
+    }
+    if (aux_var_nodo_next_char == 45.0) {
+      aux_var_nodo_next_char = 110.5;
+    }
+    if (aux_var_nodo_char <= aux_char && aux_var_nodo_next_char >= aux_char) {
       newNode->next = var_nodo->next;
       var_nodo->next = newNode;
       return *list;
-    } else if (var_nodo->next->next == 0 &&
-               var_nodo->next->character < character) {
+    } else if (var_nodo->next->next == 0 && aux_var_nodo_next_char < aux_char) {
       var_nodo->next->next = newNode;
       return *list;
-    } else if (var_nodo->character > character) {
+    } else if (aux_var_nodo_char > aux_char) {
       newNode->next = var_nodo;
-      //*list = newNode;
+      //list = newNode;
       return newNode;
     }
     var_nodo = var_nodo->next;
   }
   if (var_nodo == 0) {
-    //*list = newNode;
+    //list = newNode;
     return newNode;
-  } else if (var_nodo->character < character) {
-    var_nodo->next = newNode;
-    return var_nodo;
-  } else if (var_nodo->character > character) {
-    newNode->next = var_nodo;
-    //*list = newNode;
-    return newNode;
+  } else {
+    aux_var_nodo_char = (float)var_nodo->character;
+    if (aux_var_nodo_char == 45.0) {
+      aux_var_nodo_char = 110.5;
+    }
+    if (aux_var_nodo_char < aux_char) {
+      var_nodo->next = newNode;
+      return var_nodo;
+    }
+    else if (aux_var_nodo_char > aux_char) {
+      newNode->next = var_nodo;
+      //list = newNode;
+      return newNode;
+    }
   }
 }
-
 /*
 Dado un puntero a un arreglo de punteros a strings y el tamaño del arreglo. Se
 encarga de borrar una a una las strings y ademas borrar el arreglo.
 */
 
 void deleteArrayOfWords(char **words, int wordsCount) {
-  for (int i = 0; i < wordsCount; i++) {
+  for (int i = wordsCount-1; i >= 0; i--) {
     free(*(words + i)); // Liberamos la memoria del puntero a la i-ésima palabra
   }
 }

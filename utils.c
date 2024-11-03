@@ -1,6 +1,8 @@
 #include "utils.h"
 
-
+/*
+Devuelve la longitud de una cadena de texto.
+*/
 int strLen(char *src) {
   int i = 0;
     // Itera siempre y cuando no se detecte el null termina
@@ -9,7 +11,9 @@ int strLen(char *src) {
   return i;
 }
 
-
+/*
+Devuelve una copia de una cadena de texto.
+*/
 char* strDup(char* src) {
   //Declaramos el size y el espacio de memoria donde vamos a guardar la copa (+1 por el null termina)
   int size = strLen(src);
@@ -21,7 +25,9 @@ char* strDup(char* src) {
   return copia;
 }
 
-
+/*
+Crea una nueva instancia vacía de tipo keysPredict.
+*/
 struct keysPredict *keysPredictNew() {
   struct keysPredict *kt = (struct keysPredict *)malloc(sizeof(struct keysPredict));
   kt->first = 0;
@@ -30,6 +36,9 @@ struct keysPredict *keysPredictNew() {
   return kt;
 }
 
+/*
+Agrega una palabra a un keysPredict.
+*/
 void keysPredictAddWord(struct keysPredict *kt, char *word) {
   struct node *v_nodo; // Alojamos memoria para un nuevo
   char *n_word = strDup(word); // Copiamos palabra para el ultimo nodo de la palabra
@@ -59,6 +68,9 @@ void keysPredictAddWord(struct keysPredict *kt, char *word) {
   }
 }
 
+/*
+Borra una palabra de un keysPredict.
+*/
 void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
   if (strLen(word) > 0) { //si el len de la palabra es mayor a 0
      struct node *v_nodo = keysPredictFind(kt, word); //buscamos el nodo que contenga la palabra 
@@ -71,6 +83,9 @@ void keysPredictRemoveWord(struct keysPredict *kt, char *word) {
   }
 }
 
+/*
+Busca una palabra en un keysPredict y retorna el puntero a su último nodo.
+*/
 struct node *keysPredictFind(struct keysPredict *kt, char *word) {
   if (strLen(word) > 0) {
     struct node *v_nodo = kt->first;
@@ -95,8 +110,9 @@ struct node *keysPredictFind(struct keysPredict *kt, char *word) {
   }
 }
 
-/* funcion auxiliar que se usa para keypredictrun, devuelve el puntero al nivel de abajo del ultimo nodo del prefijo especificado
-**/
+/* 
+Funcion auxiliar que se usa para keypredictrun, devuelve el puntero al nivel de abajo del ultimo nodo del prefijo especificado
+*/
 struct node* recursiveFindPrefix(struct node* n, char* partialWord) {
   struct node *v_node = findNodeInLevel(&n, partialWord[0]); //buscamos el primero nodo que contenga el primer caracter del prefijo
   if (strLen(partialWord) != 1) { //si no se llego a la ultima letra...
@@ -272,12 +288,13 @@ struct node* addSortedNewNodeInLevel(struct node **list, char character) {
   newNode->end = 0;
   newNode->next = 0;
   newNode->word = 0;
+  // El código ASCII de un - es 45, a fines de comparar de manera ordenada...
+  // si lo detectamos lo codificamos como un 110.5 (caracter entre n y o)
   aux_char = (float)character;
   if (aux_char == 45.0) {
     aux_char = 110.5;
   }
   while (var_nodo != 0 && var_nodo->next != 0) { // Más de dos nodos
-    // Agregar en medio
     aux_var_nodo_char = (float)var_nodo->character;
     aux_var_nodo_next_char = (float)var_nodo->next->character;
     if (aux_var_nodo_char == 45.0) {
@@ -286,35 +303,35 @@ struct node* addSortedNewNodeInLevel(struct node **list, char character) {
     if (aux_var_nodo_next_char == 45.0) {
       aux_var_nodo_next_char = 110.5;
     }
+    //  Agregar en medio (entre dos nodos)
     if (aux_var_nodo_char <= aux_char && aux_var_nodo_next_char >= aux_char) {
       newNode->next = var_nodo->next;
       var_nodo->next = newNode;
       return *list;
-    } else if (var_nodo->next->next == 0 && aux_var_nodo_next_char < aux_char) {
+    } else if (var_nodo->next->next == 0 && aux_var_nodo_next_char < aux_char) { // Agregar al final (extremo)
       var_nodo->next->next = newNode;
       return *list;
-    } else if (aux_var_nodo_char > aux_char) {
+    } else if (aux_var_nodo_char > aux_char) { // Agregar al inicio (extremo)
       newNode->next = var_nodo;
-      //list = newNode;
       return newNode;
     }
     var_nodo = var_nodo->next;
   }
-  if (var_nodo == 0) {
+  // Si son menos de dos nodos
+  if (var_nodo == 0) { // Si no hay nodos...
     //list = newNode;
     return newNode;
-  } else {
+  } else { // Si hay uno solo...
     aux_var_nodo_char = (float)var_nodo->character;
-    if (aux_var_nodo_char == 45.0) {
+    if (aux_var_nodo_char == 45.0) { 
       aux_var_nodo_char = 110.5;
     }
-    if (aux_var_nodo_char < aux_char) {
+    if (aux_var_nodo_char < aux_char) { // Si el único nodo es menor al nuevo nodo...
       var_nodo->next = newNode;
       return var_nodo;
     }
-    else if (aux_var_nodo_char > aux_char) {
+    else if (aux_var_nodo_char > aux_char) { // Si el único nodo es mayor al nuevo nodo...
       newNode->next = var_nodo;
-      //list = newNode;
       return newNode;
     }
   }

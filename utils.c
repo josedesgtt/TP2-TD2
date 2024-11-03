@@ -210,13 +210,13 @@ char **keysPredictListAll(struct keysPredict *kt, int *wordsCount) {
 }
 
 void recursiveDelete(struct node *n) {
-  if (n->next != 0) {
-    recursiveDelete(n->next);
+  if (n->next != 0) { //nos preguntamos si el siguiente nodo es nulo, si no es nulo...
+    recursiveDelete(n->next); 
   }
-  if (n->down != 0) {
-    recursiveDelete(n->down);
+  if (n->down != 0) {//nos preguntamos si el nodo del siguiente nivel es nulo, si no es nul...
+    recursiveDelete(n->down); 
   }
-  if (n->end != 0) {
+  if (n->end != 0) { //si existe una palabra en el nodo, la borramos
     deleteArrayOfWords(&(n->word), 1);
   }
   free(n);
